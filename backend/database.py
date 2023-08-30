@@ -1,12 +1,16 @@
+import os
+from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector import errorcode
 
 
+load_dotenv()  
+
 config = {
-    'user': 'your_username',
-    'password': 'your_password',
-    'host': '127.0.0.1',
-    'database': 'your_database_name',
+    'user': os.environ.get('DB_USER'),
+    'password': os.environ.get('DB_PASSWORD'),
+    'host': os.environ.get('DB_HOST'),
+    'database': os.environ.get('DB_DATABASE'),
     'raise_on_warnings': True
 }
 
