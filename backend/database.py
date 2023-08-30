@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 import mysql.connector
 from mysql.connector import errorcode
 
-
 load_dotenv()  
 
 config = {
@@ -54,4 +53,61 @@ def insert_user(name, email, password):
         connection.close()
     return success
 
-init_db()  
+def get_user_by_email(email):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user_data = cursor.fetchone()
+        return user_data
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+    finally:
+        cursor.close()
+        connection.close()
+
+def update_user(email, name=None, password=None):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        update_query = "UPDATE users SET "
+        params = []
+        
+        if name:
+            update_query += "name=%s,"
+            params.append(name)
+        if password:
+            update_query += "password=%s,"
+            params.append(password)
+
+        update_query = update_query.rstrip(',')
+        update_query += " WHERE email=%s"
+        params.append(email)
+        
+        cursor.execute(update_query, params)
+        connection.commit()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+def delete_user(email):
+    try:
+        connection = mysql.connector.connect(**config)
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM users WHERE email = %s", (email,))
+        connection.commit()
+        return True
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
+
+
+init_db()
