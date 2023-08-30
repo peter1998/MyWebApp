@@ -4,6 +4,18 @@ from database import insert_user
 
 class MyHandler(BaseHTTPRequestHandler):
 
+    def _send_cors_headers(self):
+        
+        self.send_header("Access-Control-Allow-Origin", "*") 
+        self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "content-type")
+
+    def do_OPTIONS(self):
+        
+        self.send_response(200)
+        self._send_cors_headers()
+        self.end_headers()
+
     def do_POST(self):
         if self.path == '/register':
             content_length = int(self.headers['Content-Length'])
@@ -16,13 +28,14 @@ class MyHandler(BaseHTTPRequestHandler):
             
             success = insert_user(name, email, password)
 
-            #  response
+            # response
             self.send_response(200)
+            self._send_cors_headers() 
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"success": success}).encode())
 
-#  HTTP server
+# HTTP server
 if __name__ == "__main__":
     server_address = ('', 8000)
     httpd = HTTPServer(server_address, MyHandler)
